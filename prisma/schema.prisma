@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String       @id @default(uuid())
+  email              String       @unique
+  fullname           String
+  photo              String
+  type_user          TypeUser     @relation(fields: [type], references: [id])
+  type               Int
+  password           String
+  remember_password  String?      @default(uuid())
+  last_login         String?
+  historic           Historic[]
+  influencerCaptacao Influencer[]
+  plug_chat          PlugChat[]
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @updatedAt
+
+  @@map("users")
+}
+
+model TypeUser {
+  id         Int      @id
+  type       String
+  user       User[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("type_users")
+}
+
+model Historic {
+  id         Int      @id @default(autoincrement())
+  type       String
+  user_rent  User     @relation(fields: [user], references: [id])
+  user       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("historic")
+}
+
+model Influencer {
+  id                   String    @id @default(uuid())
+  phone                String?
+  email                String
+  fullname             String
+  photo                String
+  username             String    @unique
+  following            String
+  followers            String
+  method_contact       String
+  status_influencer    Status    @relation(fields: [status], references: [id])
+  status               Int
+  campaigns_influencer Campaigns? @relation(fields: [campaigns], references: [id])
+  campaigns            String?
+  captacao_influencer  User      @relation(fields: [captacao], references: [id])
+  captacao             String
+  posts                Posts[]
+  pix_bank             BankData?
+  plug_chat            PlugChat?
+  request_archiving    Boolean   @default(false)
+  archiving            Boolean   @default(false)
+  observation          String?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+
+  @@map("influencer")
+}
+
+model Campaigns {
+  id         String       @id @default(uuid())
+  name       String
+  influencer Influencer[]
+  created_at DateTime     @default(now())
+  updated_at DateTime     @updatedAt
+
+  @@map("campaigns")
+}
+
+model Posts {
+  id              String     @id @default(uuid())
+  posted          Boolean
+  title           String
+  start           DateTime
+  className       String
+  influencer_rent Influencer @relation(fields: [influencer], references: [id])
+  influencer      String
+  observation     String?
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+
+  @@map("posts")
+}
+
+model Status {
+  id         Int          @id
+  status     String
+  influencer Influencer[]
+  created_at DateTime     @default(now())
+  updated_at DateTime     @updatedAt
+
+  @@map("status")
+}
+
+model PlugChat {
+  id               String     @id @default(uuid())
+  link             String
+  influencer_rent  Influencer @relation(fields: [influencer], references: [id])
+  influencer       String     @unique
+  responsavel_rent User       @relation(fields: [responsavel], references: [id])
+  responsavel      String
+  date_init        String
+  hour_init        String
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+
+  @@map("plug_chat")
+}
+
+model BankData {
+  id              String     @id @default(uuid())
+  name            String
+  cpf             String
+  type            String
+  pix             String     @unique
+  value           String?
+  influencer_rent Influencer @relation(fields: [influencer], references: [id])
+  influencer      String     @unique
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+
+  @@map("bank_data")
+}
